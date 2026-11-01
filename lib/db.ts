@@ -1,37 +1,43 @@
 import mysql from "mysql2/promise";
 
-export const pool = mysql.createPool({
-  host: process.env.DB_HOST || "localhost",
-  user: process.env.DB_USER || "root",
-  password: process.env.DB_PASS || "",
-  database: process.env.DB_NAME || "trungdienlanh",
-  waitForConnections: true,
-  connectionLimit: 20,
-  queueLimit: 100,
-  enableKeepAlive: true,
-  keepAliveInitialDelay: 30000,
-});
+const globalForMysql = globalThis as unknown as {
+  mysqlPool?: mysql.Pool;
+};
 
-export async function query<T = any>(sql: string, values?: any[]): Promise<T> {
-  try {
-    const [rows] = await pool.execute(sql, values);
-    return rows as T;
-  } finally {
-  }
+export const pool =
+  globalForMysql.mysqlPool ??
+  mysql.createPool({
+    host: process.env.DB_HOST,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASS,
+    database: process.env.DB_NAME,
+
+    waitForConnections: true,
+    connectionLimit: 10,
+    queueLimit: 0,
+
+    enableKeepAlive: true,
+    keepAliveInitialDelay: 30000,
+
+    charset: "utf8mb4",
+
+    // Bật TLS khi DB_SSL=true
+    ssl:
+      process.env.DB_SSL === "true"
+        ? {
+            rejectUnauthorized: true,
+          }
+        : undefined,
+  });
+
+if (process.env.NODE_ENV !== "production") {
+  globalForMysql.mysqlPool = pool;
 }
 
-// Query Cache Layer
-const queryCache = new Map<string, { data: any; expire: number }>();
-
-export async function cachedQuery(key: string, sql: string, values?: any[], ttlMs: number = 60000) {
-  
-  const now = Date.now();
-  const cached = queryCache.get(key);
-  if (cached && cached.expire > now) {
-    return cached.data;
-  }
-
-  const result = await query(sql, values);
-  queryCache.set(key, { data: result, expire: now + ttlMs });
-  return result;
+export async function query<T = any>(
+  sql: string,
+  values: any[] = []
+): Promise<T> {
+  const [rows] = await pool.execute(sql, values);
+  return rows as T;
 }
