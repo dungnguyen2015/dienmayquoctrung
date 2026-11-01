@@ -1,0 +1,4 @@
+import Link from "next/link";
+export type Product = {id:number;name:string;slug:string;price:number|string;old_price?:number|string|null;image_url?:string|null;condition_label?:string;short_description?:string|null};
+const money=(v:number|string)=>new Intl.NumberFormat("vi-VN").format(Number(v||0))+"₫";
+export default function ProductCard({p}:{p:Product}){return <article className="product"><Link href={`/san-pham/${p.slug}`}><img src={p.image_url||"https://images.unsplash.com/photo-1571175443880-49e1d25b2bc5?auto=format&fit=crop&w=700&q=80"} alt={p.name}/><div className="productbody"><span className="pill">{p.condition_label||"Đã qua sử dụng"}</span><h3>{p.name}</h3><div className="price">{money(p.price)}</div>{p.old_price&&Number(p.old_price)>Number(p.price)?<div className="muted"><s>{money(p.old_price)}</s></div>:null}<p className="muted">{p.short_description||"Liên hệ để được tư vấn tình trạng sản phẩm."}</p></div></Link></article>}

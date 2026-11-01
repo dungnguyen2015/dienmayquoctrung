@@ -1,0 +1,3 @@
+import SiteHeader from "@/components/SiteHeader";import SiteFooter from "@/components/SiteFooter";import ContactForm from "@/components/ContactForm";
+export const metadata={title:"Liên hệ Điện Máy Quốc Trung",description:"Liên hệ tư vấn sản phẩm điện lạnh cũ."};
+export default function Contact(){return <><SiteHeader/><main className="container"><h1>Liên hệ Điện Máy Quốc Trung</h1><p>Gửi thông tin để cửa hàng liên hệ tư vấn sản phẩm phù hợp.</p><ContactForm/><p>Hotline: <a className="hotline" href={`tel:${process.env.NEXT_PUBLIC_PHONE||"0932383966"}`}>{process.env.NEXT_PUBLIC_PHONE||"0932 383 966"}</a></p></main><SiteFooter/></>}
