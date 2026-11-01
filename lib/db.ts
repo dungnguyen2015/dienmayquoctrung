@@ -1,13 +1,22 @@
+
 import mysql from "mysql2/promise";
 
 const globalForMysql = globalThis as unknown as {
   mysqlPool?: mysql.Pool;
 };
 
+const sslEnabled = process.env.DB_SSL === "true";
+const sslCA = process.env.DB_SSL_CA;
+
+if (sslEnabled && !sslCA) {
+  throw new Error("DB_SSL_CA is required when DB_SSL=true");
+}
+
 export const pool =
   globalForMysql.mysqlPool ??
   mysql.createPool({
     host: process.env.DB_HOST,
+    port: Number(process.env.DB_PORT || 3306),
     user: process.env.DB_USER,
     password: process.env.DB_PASS,
     database: process.env.DB_NAME,
@@ -21,13 +30,12 @@ export const pool =
 
     charset: "utf8mb4",
 
-    // Bật TLS khi DB_SSL=true
-    ssl:
-      process.env.DB_SSL === "true"
-        ? {
-            rejectUnauthorized: true,
-          }
-        : undefined,
+    ssl: sslEnabled
+      ? {
+          ca: sslCA,
+          rejectUnauthorized: true,
+        }
+      : undefined,
   });
 
 if (process.env.NODE_ENV !== "production") {
