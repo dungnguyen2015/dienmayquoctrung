@@ -174,119 +174,156 @@ export default function MediaLibrary({
   }
 
   const content = (
-    <div className="media-library">
-      <div className="media-toolbar">
-        <input
-          type="search"
-          placeholder="Tìm theo nội dung ALT..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
+    <div className="space-y-6">
+      {/* Thông báo Notice / Error */}
+      {notice && (
+        <div className="p-3 bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-semibold rounded-xl flex items-center justify-between shadow-xs">
+          <span>✓ {notice}</span>
+          <button type="button" onClick={() => setNotice("")} className="text-emerald-500 hover:text-emerald-800">✕</button>
+        </div>
+      )}
+      {error && (
+        <div className="p-3 bg-red-50 border border-red-200 text-red-600 text-xs font-semibold rounded-xl flex items-center justify-between shadow-xs">
+          <span>⚠️ {error}</span>
+          <button type="button" onClick={() => setError("")} className="text-red-400 hover:text-red-700">✕</button>
+        </div>
+      )}
+
+      {/* Thanh tìm kiếm & Tải ảnh mới */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end bg-slate-50 p-5 rounded-2xl border border-slate-200">
+        <div className="space-y-1.5 md:col-span-3">
+          <input
+            type="search"
+            placeholder="🔍 Tìm kiếm theo nội dung ALT hình ảnh..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full px-4 py-2.5 text-sm bg-white border border-slate-300 rounded-xl text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-red-500 transition-all"
+          />
+        </div>
+
+        <div className="space-y-1.5 md:col-span-1">
+          <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider">
+            Chọn tệp ảnh
+          </label>
+          <input
+            type="file"
+            accept="image/jpeg,image/png,image/webp,image/avif"
+            onChange={(e) => setFile(e.target.files?.[0] || null)}
+            className="w-full text-xs text-slate-500 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-red-50 file:text-red-600 hover:file:bg-red-100 cursor-pointer"
+          />
+        </div>
+
+        <div className="space-y-1.5 md:col-span-1">
+          <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider">
+            ALT mô tả hình ảnh
+          </label>
+          <input
+            type="text"
+            maxLength={500}
+            placeholder="Nhập ALT mô tả..."
+            value={uploadAlt}
+            onChange={(e) => setUploadAlt(e.target.value)}
+            className="w-full px-3.5 py-2 text-sm bg-white border border-slate-300 rounded-xl text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-red-500 transition-all"
+          />
+        </div>
+
+        <div className="md:col-span-1">
+          <button
+            type="button"
+            disabled={busy || !file}
+            onClick={upload}
+            className="w-full py-2.5 px-4 bg-red-600 hover:bg-red-700 active:bg-red-800 text-white font-bold text-xs rounded-xl shadow-md transition-all flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
+          >
+            {busy ? "Đang tải lên..." : "⬆ Tải ảnh lên"}
+          </button>
+        </div>
       </div>
 
-      <section className="media-upload">
-        <h3>Tải ảnh mới</h3>
-
-        <input
-          type="file"
-          accept="image/jpeg,image/png,image/webp,image/avif"
-          onChange={(e) => setFile(e.target.files?.[0] || null)}
-        />
-
-        <input
-          type="text"
-          maxLength={500}
-          placeholder="ALT mô tả hình ảnh"
-          value={uploadAlt}
-          onChange={(e) => setUploadAlt(e.target.value)}
-        />
-
-        <button
-          type="button"
-          className="btn"
-          disabled={busy || !file}
-          onClick={upload}
-        >
-          {busy ? "Đang xử lý..." : "Tải ảnh lên"}
-        </button>
-      </section>
-
-      {notice && <p className="notice">{notice}</p>}
-      {error && <p className="error">{error}</p>}
-
-      <div className="media-grid">
+      {/* Lưới danh sách ảnh */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {images.map((image) => (
-          <article className="media-item" key={image.id}>
-            <div className="media-preview">
-              <img src={image.image_url} alt={image.alt_text} />
+          <article
+            key={image.id}
+            className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-xs hover:shadow-md transition-all flex flex-col justify-between group"
+          >
+            <div>
+              <div className="aspect-video w-full bg-slate-100 overflow-hidden relative border-b border-slate-100">
+                <img
+                  src={image.image_url}
+                  alt={image.alt_text}
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                />
+              </div>
+
+              <div className="p-3.5 space-y-2.5">
+                <div className="flex items-center justify-between text-[11px] font-semibold text-slate-400">
+                  <span>{image.width || "?"} × {image.height || "?"} px</span>
+                  <span className="uppercase bg-slate-100 px-1.5 py-0.5 rounded text-[10px] text-slate-600">
+                    {image.format || "IMG"}
+                  </span>
+                </div>
+
+                <input
+                  type="text"
+                  maxLength={500}
+                  aria-label={`ALT ảnh ${image.id}`}
+                  placeholder="Nhập ALT..."
+                  value={editingAlt[image.id] ?? image.alt_text}
+                  onChange={(e) =>
+                    setEditingAlt((old) => ({
+                      ...old,
+                      [image.id]: e.target.value,
+                    }))
+                  }
+                  className="w-full px-3 py-1.5 text-xs bg-slate-50 border border-slate-300 rounded-lg text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-red-500 focus:bg-white transition-all"
+                />
+              </div>
             </div>
 
-            <div className="media-info">
-              <small>
-                {image.width || "?"} × {image.height || "?"}
-                {" · "}
-                {image.format?.toUpperCase() || "IMAGE"}
-              </small>
-
-              <input
-                type="text"
-                maxLength={500}
-                aria-label={`ALT ảnh ${image.id}`}
-                placeholder="Nhập ALT..."
-                value={
-                  editingAlt[image.id] ?? image.alt_text
-                }
-                onChange={(e) =>
-                  setEditingAlt((old) => ({
-                    ...old,
-                    [image.id]: e.target.value,
-                  }))
-                }
-              />
-
-              <div className="media-actions">
-                {picker && (
-                  <button
-                    type="button"
-                    className="btn"
-                    onClick={() => onSelect?.(image)}
-                  >
-                    Chọn ảnh
-                  </button>
-                )}
-
+            <div className="p-3.5 pt-0 grid grid-cols-2 gap-1.5">
+              {picker && (
                 <button
                   type="button"
-                  className="btn btnsecondary"
-                  onClick={() => copyUrl(image.image_url)}
+                  onClick={() => onSelect?.(image)}
+                  className="col-span-2 py-1.5 px-3 bg-red-600 hover:bg-red-700 text-white font-bold text-[11px] rounded-lg transition-colors shadow-xs"
                 >
-                  Sao chép URL
+                  ✓ Chọn ảnh này
                 </button>
+              )}
 
-                <button
-                  type="button"
-                  className="btn btnsecondary"
-                  disabled={busy}
-                  onClick={() => saveAlt(image)}
-                >
-                  Lưu ALT
-                </button>
+              <button
+                type="button"
+                onClick={() => copyUrl(image.image_url)}
+                className="py-1.5 px-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-[11px] rounded-lg transition-colors border border-slate-200"
+              >
+                Sao chép URL
+              </button>
 
-                <button
-                  type="button"
-                  className="btn danger"
-                  disabled={busy}
-                  onClick={() => remove(image)}
-                >
-                  Xóa
-                </button>
-              </div>
+              <button
+                type="button"
+                disabled={busy}
+                onClick={() => saveAlt(image)}
+                className="py-1.5 px-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-[11px] rounded-lg transition-colors border border-slate-200"
+              >
+                Lưu ALT
+              </button>
+
+              <button
+                type="button"
+                disabled={busy}
+                onClick={() => remove(image)}
+                className="col-span-2 py-1.5 px-3 bg-red-50 hover:bg-red-600 text-red-600 hover:text-white font-bold text-[11px] rounded-lg transition-colors border border-red-200"
+              >
+                Xóa ảnh
+              </button>
             </div>
           </article>
         ))}
 
         {images.length === 0 && (
-          <p>Chưa có ảnh trong thư viện.</p>
+          <div className="col-span-full py-12 text-center text-slate-400 font-medium bg-white rounded-2xl border border-slate-200">
+            Chưa có ảnh nào trong thư viện.
+          </div>
         )}
       </div>
     </div>
@@ -295,27 +332,28 @@ export default function MediaLibrary({
   if (!picker) return content;
 
   return (
-    <div className="media-modal-backdrop">
-      <section
-        className="media-modal"
+    <div className="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-xs flex items-center justify-center p-4">
+      <div
         role="dialog"
         aria-modal="true"
         aria-label="Chọn ảnh từ thư viện"
+        className="bg-white rounded-2xl shadow-2xl border border-slate-200 w-full max-w-5xl max-h-[90vh] flex flex-col overflow-hidden"
       >
-        <header className="media-modal-header">
-          <h2>Chọn ảnh từ thư viện</h2>
-
+        <div className="px-6 py-4 bg-slate-900 text-white flex items-center justify-between shrink-0">
+          <h2 className="text-base font-bold">Thư Viện Ảnh - Chọn Ảnh</h2>
           <button
             type="button"
-            className="btn btnsecondary"
             onClick={onClose}
+            className="w-8 h-8 rounded-full bg-slate-800 hover:bg-red-600 text-white flex items-center justify-center font-bold text-xs transition-colors"
           >
-            Đóng
+            ✕
           </button>
-        </header>
+        </div>
 
-        {content}
-      </section>
+        <div className="p-6 overflow-y-auto flex-1">
+          {content}
+        </div>
+      </div>
     </div>
   );
 }
