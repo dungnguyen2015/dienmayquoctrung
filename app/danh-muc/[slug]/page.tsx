@@ -14,7 +14,6 @@ type Category = {
   parent_id: number | null;
 };
 
-// Hàm truy vấn thông tin danh mục và sản phẩm từ DB
 async function getCategoryData(slug: string) {
   try {
     const cats = await query<Category[]>(
@@ -26,8 +25,6 @@ async function getCategoryData(slug: string) {
 
     let products: Product[] = [];
 
-    // Nếu là danh mục cha (không có parent_id hoặc là danh mục lớn), lấy cả sản phẩm của nó và danh mục con trực thuộc
-    // Nếu là danh mục con cụ thể, chỉ lấy sản phẩm thuộc đúng category_id đó
     if (!category.parent_id) {
       products = await query<Product[]>(
         `SELECT p.id, p.name, p.slug, p.price, p.old_price, p.image_url, p.condition_label, p.short_description 
@@ -55,7 +52,6 @@ async function getCategoryData(slug: string) {
   }
 }
 
-// Tạo Metadata SEO động
 export async function generateMetadata({
   params,
 }: {
@@ -89,7 +85,6 @@ export default async function CategoryOrSubcategoryPage({
   const { slug } = await params;
   const data = await getCategoryData(slug);
 
-  // Nếu không tìm thấy danh mục trong CSDL -> Kích hoạt trang 404
   if (!data) {
     notFound();
   }
@@ -125,14 +120,78 @@ export default async function CategoryOrSubcategoryPage({
               </p>
             )}
 
-            {/* Thanh Lọc Nhanh (Filter Pills) tương ứng cho Tủ Lạnh */}
+            {/* Thanh lọc nhanh đồng bộ với Header */}
             {slug === "tu-lanh" && (
               <div className="pt-3 flex flex-wrap gap-2 border-t border-slate-100">
                 {[
-                  ["Tủ dưới 130L", "/danh-muc/tu-lanh-nho-duoi-130l"],
-                  ["Tủ từ 130L", "/danh-muc/tu-lanh-lon-130l"],
-                  ["Side by Side", "/danh-muc/tu-lanh-side-by-side"],
-                  ["Inverter", "/danh-muc/tu-lanh-inverter"],
+                  ["Tất cả tủ lạnh", "/danh-muc/tu-lanh"],
+                  ["Dưới 130 lít", "/danh-muc/tu-lanh?dung-tich=duoi-130l"],
+                  ["130–200 lít", "/danh-muc/tu-lanh?dung-tich=130-200l"],
+                  ["200–300 lít", "/danh-muc/tu-lanh?dung-tich=200-300l"],
+                  ["Trên 300 lít", "/danh-muc/tu-lanh?dung-tich=tren-300l"],
+                  ["2 cánh", "/danh-muc/tu-lanh?loai=2-canh"],
+                  ["Side by Side", "/danh-muc/tu-lanh?loai=side-by-side"],
+                  ["Inverter", "/danh-muc/tu-lanh?cong-nghe=inverter"],
+                ].map(([label, href]) => (
+                  <Link
+                    key={href}
+                    href={href}
+                    className="px-3 py-1.5 bg-slate-100 hover:bg-red-50 hover:text-red-600 text-slate-700 text-xs font-semibold rounded-lg border border-slate-200 transition-colors"
+                  >
+                    {label}
+                  </Link>
+                ))}
+              </div>
+            )}
+
+            {slug === "may-giat" && (
+              <div className="pt-3 flex flex-wrap gap-2 border-t border-slate-100">
+                {[
+                  ["Tất cả máy giặt", "/danh-muc/may-giat"],
+                  ["Cửa trên", "/danh-muc/may-giat?loai=cua-tren"],
+                  ["Cửa trước", "/danh-muc/may-giat?loai=cua-truoc"],
+                  ["Dưới 8 kg", "/danh-muc/may-giat?khoi-luong=duoi-8kg"],
+                  ["Từ 8 kg trở lên", "/danh-muc/may-giat?khoi-luong=tu-8kg"],
+                  ["Inverter", "/danh-muc/may-giat?cong-nghe=inverter"],
+                ].map(([label, href]) => (
+                  <Link
+                    key={href}
+                    href={href}
+                    className="px-3 py-1.5 bg-slate-100 hover:bg-red-50 hover:text-red-600 text-slate-700 text-xs font-semibold rounded-lg border border-slate-200 transition-colors"
+                  >
+                    {label}
+                  </Link>
+                ))}
+              </div>
+            )}
+
+            {slug === "may-lanh" && (
+              <div className="pt-3 flex flex-wrap gap-2 border-t border-slate-100">
+                {[
+                  ["Tất cả máy lạnh", "/danh-muc/may-lanh"],
+                  ["Máy lạnh 1 HP", "/danh-muc/may-lanh?cong-suat=1hp"],
+                  ["Máy lạnh 1.5 HP", "/danh-muc/may-lanh?cong-suat=1-5hp"],
+                  ["2 HP trở lên", "/danh-muc/may-lanh?cong-suat=tu-2hp"],
+                  ["Inverter", "/danh-muc/may-lanh?cong-nghe=inverter"],
+                ].map(([label, href]) => (
+                  <Link
+                    key={href}
+                    href={href}
+                    className="px-3 py-1.5 bg-slate-100 hover:bg-red-50 hover:text-red-600 text-slate-700 text-xs font-semibold rounded-lg border border-slate-200 transition-colors"
+                  >
+                    {label}
+                  </Link>
+                ))}
+              </div>
+            )}
+
+            {slug === "dien-gia-dung" && (
+              <div className="pt-3 flex flex-wrap gap-2 border-t border-slate-100">
+                {[
+                  ["Tất cả điện gia dụng", "/danh-muc/dien-gia-dung"],
+                  ["Tivi", "/danh-muc/dien-gia-dung?t=ti-vi"],
+                  ["Lò vi sóng", "/danh-muc/dien-gia-dung?t=lo-vi-song"],
+                  ["Máy nước nóng", "/danh-muc/dien-gia-dung?t=may-nuoc-nong"],
                 ].map(([label, href]) => (
                   <Link
                     key={href}
@@ -146,7 +205,7 @@ export default async function CategoryOrSubcategoryPage({
             )}
           </div>
 
-          {/* Lưới hiển thị Sản phẩm (4 cột trên Desktop) */}
+          {/* Lưới sản phẩm */}
           {products.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               {products.map((p) => (

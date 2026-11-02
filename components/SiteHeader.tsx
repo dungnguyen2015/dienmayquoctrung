@@ -13,7 +13,7 @@ const productCategories = [
     children: [
       { label: "Tủ lạnh dưới 130 lít", href: "/danh-muc/tu-lanh?dung-tich=duoi-130l" },
       { label: "Tủ lạnh 130–200 lít", href: "/danh-muc/tu-lanh?dung-tich=130-200l" },
-      { label: "Tủ lạnh 200–300 lít", href: "/tu-lanh?dung-tich=200-300l" },
+      { label: "Tủ lạnh 200–300 lít", href: "/danh-muc/tu-lanh?dung-tich=200-300l" },
       { label: "Tủ lạnh trên 300 lít", href: "/danh-muc/tu-lanh?dung-tich=tren-300l" },
       { label: "Tủ lạnh 2 cánh", href: "/danh-muc/tu-lanh?loai=2-canh" },
       { label: "Tủ lạnh Side by Side", href: "/danh-muc/tu-lanh?loai=side-by-side" },
@@ -22,7 +22,7 @@ const productCategories = [
   },
   {
     label: "Máy giặt",
-    href: "/may-giat",
+    href: "/danh-muc/may-giat",
     children: [
       { label: "Máy giặt cửa trên", href: "/danh-muc/may-giat?loai=cua-tren" },
       { label: "Máy giặt cửa trước", href: "/danh-muc/may-giat?loai=cua-truoc" },
@@ -33,7 +33,7 @@ const productCategories = [
   },
   {
     label: "Máy lạnh",
-    href: "/may-lanh",
+    href: "/danh-muc/may-lanh",
     children: [
       { label: "Máy lạnh 1 HP", href: "/danh-muc/may-lanh?cong-suat=1hp" },
       { label: "Máy lạnh 1.5 HP", href: "/danh-muc/may-lanh?cong-suat=1-5hp" },
@@ -43,11 +43,11 @@ const productCategories = [
   },
   {
     label: "Điện gia dụng",
-    href: "/dien-gia-dung",
+    href: "/danh-muc/dien-gia-dung",
     children: [
-      { label: "Tivi", href: "/dien-gia-dung?t=ti-vi" },
-      { label: "Lò vi sóng", href: "/dien-gia-dung?t=lo-vi-song" },
-      { label: "Máy nước nóng", href: "/dien-gia-dung?t=may-nuoc-nong" },
+      { label: "Tivi", href: "/danh-muc/dien-gia-dung?t=ti-vi" },
+      { label: "Lò vi sóng", href: "/danh-muc/dien-gia-dung?t=lo-vi-song" },
+      { label: "Máy nước nóng", href: "/danh-muc/dien-gia-dung?t=may-nuoc-nong" },
     ],
   },
 ];
@@ -78,7 +78,6 @@ export default function SiteHeader() {
 
       {/* Main Header */}
       <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between gap-3 sm:gap-4">
-        {/* Logo */}
         <Link href="/" aria-label="Điện Máy Quốc Trung - Trang chủ" className="flex items-center gap-2 group shrink-0">
           <span className="w-10 h-10 bg-red-600 text-white font-black rounded-lg flex items-center justify-center text-xl shadow-md group-hover:bg-red-700 transition-colors">
             QT
@@ -93,7 +92,6 @@ export default function SiteHeader() {
           </span>
         </Link>
 
-        {/* Search Bar */}
         <form action="/san-pham" role="search" className="flex-1 max-w-xl">
           <div className="relative flex items-center">
             <input
@@ -112,7 +110,6 @@ export default function SiteHeader() {
           </div>
         </form>
 
-        {/* Hotline (Desktop) */}
         <a
           href={`tel:${phone}`}
           className="hidden md:flex items-center gap-2 px-3 py-1.5 border border-red-200 bg-red-50 hover:bg-red-100 rounded-lg transition-colors text-red-600 shrink-0"
@@ -124,7 +121,6 @@ export default function SiteHeader() {
           </span>
         </a>
 
-        {/* Mobile Menu Toggle Button */}
         <button
           type="button"
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -148,7 +144,6 @@ export default function SiteHeader() {
             Trang chủ
           </Link>
 
-          {/* MENU DANH MỤC SẢN PHẨM (MENU CHA DUY NHẤT) */}
           <div className="relative group/parent">
             <Link
               href="/san-pham"
@@ -159,7 +154,6 @@ export default function SiteHeader() {
               <span className="text-xs transition-transform group-hover/parent:rotate-180">▾</span>
             </Link>
 
-            {/* Dropdown Cấp 1 (Tủ lạnh, Máy giặt, Máy lạnh...) */}
             <div className="absolute top-full left-0 w-60 bg-white text-slate-800 shadow-2xl border border-slate-100 opacity-0 invisible group-hover/parent:opacity-100 group-hover/parent:visible transition-all duration-200 z-50 rounded-b-md">
               {productCategories.map((category) => (
                 <div key={category.href} className="relative group/child border-b border-slate-100 last:border-0">
@@ -171,7 +165,6 @@ export default function SiteHeader() {
                     <span className="text-xs text-slate-400 group-hover/child:text-red-600 font-bold">›</span>
                   </Link>
 
-                  {/* Dropdown Cấp 2 (Tủ lạnh dưới 130l, Inverter...) */}
                   <div className="absolute top-0 left-full w-64 bg-white text-slate-800 shadow-2xl border border-slate-100 opacity-0 invisible group-hover/child:opacity-100 group-hover/child:visible transition-all duration-200 rounded-r-md">
                     <div className="p-2.5 border-b border-slate-100 bg-red-50">
                       <Link
@@ -205,7 +198,7 @@ export default function SiteHeader() {
         </div>
       </nav>
 
-      {/* Navigation Drawer (MOBILE & TABLET) */}
+      {/* Navigation Drawer (MOBILE) */}
       {mobileMenuOpen && (
         <nav className="md:hidden bg-slate-900 text-white border-t border-red-700" aria-label="Điều hướng di động">
           <div className="p-4 space-y-3">
@@ -241,7 +234,6 @@ export default function SiteHeader() {
                     </button>
                   </div>
 
-                  {/* SubmenuAccordion on Mobile */}
                   {openCategory === category.label && (
                     <div className="pl-4 pb-2 space-y-1.5 bg-slate-950/40 rounded-md my-1 py-2">
                       <Link
