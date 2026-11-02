@@ -19,7 +19,10 @@ export default function ContactForm({
     setMsg("");
     setIsSuccess(false);
 
-    const form = new FormData(e.currentTarget);
+    // 1. Lưu lại tham chiếu form trước khi thực hiện await fetch
+    const formElement = e.currentTarget;
+
+    const form = new FormData(formElement);
     const data: Record<string, any> = Object.fromEntries(form.entries());
     
     if (productId) {
@@ -38,7 +41,9 @@ export default function ContactForm({
 
       setIsSuccess(true);
       setMsg("Đã gửi yêu cầu thành công! Cửa hàng sẽ liên hệ với bạn trong thời gian sớm nhất.");
-      e.currentTarget.reset();
+      
+      // 2. Gọi reset trên biến formElement đã lưu sẵn
+      formElement.reset();
     } catch (err) {
       setIsSuccess(false);
       setMsg(err instanceof Error ? err.message : "Có lỗi xảy ra.");
