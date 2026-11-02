@@ -9,7 +9,7 @@ const displayPhone = process.env.NEXT_PUBLIC_PHONE || "0932 383 966";
 const productCategories = [
   {
     label: "Tủ lạnh",
-    href: "/tu-lanh",
+    href: "/category/tu-lanh",
     children: [
       { label: "Tủ lạnh dưới 130 lít", href: "/tu-lanh?dung-tich=duoi-130l" },
       { label: "Tủ lạnh 130–200 lít", href: "/tu-lanh?dung-tich=130-200l" },
