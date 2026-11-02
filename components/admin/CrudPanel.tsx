@@ -1,19 +1,17 @@
-
 "use client";
 
 import { useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
-import MediaLibrary, {
-  type MediaImage,
-} from "./MediaLibrary";
+import MediaLibrary, { type MediaImage } from "./MediaLibrary";
 
-const TinyEditor = dynamic(
-  () => import("./TinyEditor"),
-  {
-    ssr: false,
-    loading: () => <div>Đang tải trình soạn thảo...</div>,
-  }
-);
+const TinyEditor = dynamic(() => import("./TinyEditor"), {
+  ssr: false,
+  loading: () => (
+    <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-500 font-medium animate-pulse">
+      Đang tải trình soạn thảo...
+    </div>
+  ),
+});
 
 type Row = Record<string, any>;
 
@@ -139,9 +137,7 @@ export default function CrudPanel({
   const [mediaTarget, setMediaTarget] = useState<string | null>(null);
 
   // Lưu hàm chèn ảnh vào TinyMCE
-  const editorInsertRef = useRef<
-    ((image: MediaImage) => void) | null
-  >(null);
+  const editorInsertRef = useRef<((image: MediaImage) => void) | null>(null);
 
   const cfg = config[kind];
 
@@ -252,9 +248,7 @@ export default function CrudPanel({
 
       await load();
     } catch (e) {
-      setError(
-        e instanceof Error ? e.message : "Có lỗi xảy ra"
-      );
+      setError(e instanceof Error ? e.message : "Có lỗi xảy ra");
     } finally {
       setBusy(false);
     }
@@ -281,191 +275,273 @@ export default function CrudPanel({
       setNotice("Đã xóa.");
       await load();
     } catch (e) {
-      setError(
-        e instanceof Error ? e.message : "Có lỗi xảy ra"
-      );
+      setError(e instanceof Error ? e.message : "Có lỗi xảy ra");
     }
   }
 
   return (
-    <>
-      <h1>Quản lý {cfg.title.toLowerCase()}</h1>
+    <div className="space-y-6">
+      {/* Tiêu đề chính */}
+      <div className="flex items-center justify-between border-b border-slate-200 pb-4">
+        <div>
+          <h1 className="text-2xl font-black text-slate-900 tracking-tight capitalize">
+            Quản Lý {cfg.title}
+          </h1>
+          <p className="text-xs text-slate-500 mt-1">
+            Tạo mới, chỉnh sửa và quản lý danh sách {cfg.title.toLowerCase()} của cửa hàng.
+          </p>
+        </div>
+      </div>
 
-      {notice && <div className="notice">{notice}</div>}
-      {error && <div className="error">{error}</div>}
+      {/* Thông báo Notice / Error */}
+      {notice && (
+        <div className="p-4 bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-semibold rounded-xl flex items-center justify-between shadow-xs">
+          <span>✓ {notice}</span>
+          <button type="button" onClick={() => setNotice("")} className="text-emerald-500 hover:text-emerald-800">✕</button>
+        </div>
+      )}
+      {error && (
+        <div className="p-4 bg-red-50 border border-red-200 text-red-600 text-xs font-semibold rounded-xl flex items-center justify-between shadow-xs">
+          <span>⚠️ {error}</span>
+          <button type="button" onClick={() => setError("")} className="text-red-400 hover:text-red-700">✕</button>
+        </div>
+      )}
 
-      <section className="admincard">
-        <h2>
-          {editing
-            ? `Sửa #${editing}`
-            : `Thêm ${cfg.title.toLowerCase()}`}
-        </h2>
+      {/* FORM NHẬP / CHỈNH SỬA */}
+      <section className="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
+        <div className="px-6 py-4 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
+          <h2 className="text-sm font-bold text-slate-800 flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-red-600"></span>
+            {editing ? `Chỉnh sửa #${editing}` : `Thêm ${cfg.title.toLowerCase()} mới`}
+          </h2>
+          {editing && (
+            <span className="text-xs bg-red-100 text-red-700 font-bold px-2.5 py-1 rounded-full">
+              Đang sửa #{editing}
+            </span>
+          )}
+        </div>
 
-        <form className="adminform" onSubmit={save}>
-          {cfg.fields.map((f) => (
-            <label
-              key={f.key}
-              className={f.wide ? "wide" : ""}
-            >
-              {f.label}
+        <form onSubmit={save} className="p-6 space-y-5">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            {cfg.fields.map((f) => (
+              <div
+                key={f.key}
+                className={`space-y-1.5 ${f.wide ? "md:col-span-2" : "col-span-1"}`}
+              >
+                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider">
+                  {f.label} {f.required && <span className="text-red-600">*</span>}
+                </label>
 
-              {f.type === "editor" ? (
-                <TinyEditor
-                  value={String(form[f.key] ?? "")}
-                  onChange={(value) => change(f.key, value)}
-                  onOpenMedia={(insertImage) => {
-                    editorInsertRef.current = insertImage;
-                    setMediaTarget("__editor__");
-                    setMediaOpen(true);
-                  }}
-                />
-              ) : f.key === "image_url" ? (
-                <div className="media-field">
-                  <input
-                    type="text"
-                    value={String(form.image_url ?? "")}
-                    placeholder="URL ảnh đại diện"
-                    onChange={(e) =>
-                      change("image_url", e.target.value)
-                    }
-                  />
-
-                  <button
-                    type="button"
-                    className="btn btnsecondary"
-                    onClick={() => openMedia("image_url")}
-                  >
-                    Chọn ảnh từ thư viện
-                  </button>
-
-                  {form.image_url && (
-                    <img
-                      src={String(form.image_url)}
-                      alt={String(form.image_alt || "")}
-                      className="media-field-preview"
+                {f.type === "editor" ? (
+                  <div className="rounded-xl overflow-hidden border border-slate-300">
+                    <TinyEditor
+                      value={String(form[f.key] ?? "")}
+                      onChange={(value) => change(f.key, value)}
+                      onOpenMedia={(insertImage) => {
+                        editorInsertRef.current = insertImage;
+                        setMediaTarget("__editor__");
+                        setMediaOpen(true);
+                      }}
                     />
-                  )}
-                </div>
-              ) : f.type === "checkbox" ? (
-                <input
-                  type="checkbox"
-                  checked={Boolean(form[f.key])}
-                  onChange={(e) =>
-                    change(f.key, e.target.checked)
-                  }
-                />
-              ) : f.type === "textarea" ? (
-                <textarea
-                  rows={3}
-                  value={String(form[f.key] ?? "")}
-                  onChange={(e) =>
-                    change(f.key, e.target.value)
-                  }
-                />
-              ) : f.type === "select" ? (
-                <select
-                  required={f.required}
-                  value={String(form[f.key] || "draft")}
-                  onChange={(e) =>
-                    change(f.key, e.target.value)
-                  }
-                >
-                  <option value="draft">Bản nháp</option>
-                  <option value="published">Xuất bản</option>
-                </select>
-              ) : (
-                <input
-                  type={f.type === "number" ? "number" : "text"}
-                  required={f.required}
-                  value={
-                    form[f.key] === null
-                      ? ""
-                      : String(form[f.key] ?? "")
-                  }
-                  onChange={(e) =>
-                    change(f.key, e.target.value)
-                  }
-                />
-              )}
-            </label>
-          ))}
+                  </div>
+                ) : f.key === "image_url" ? (
+                  <div className="space-y-3">
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        value={String(form.image_url ?? "")}
+                        placeholder="URL ảnh đại diện hoặc chọn từ thư viện..."
+                        onChange={(e) => change("image_url", e.target.value)}
+                        className="flex-1 px-3.5 py-2.5 text-sm bg-slate-50 border border-slate-300 rounded-xl text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-red-500 focus:bg-white transition-all"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => openMedia("image_url")}
+                        className="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 border border-slate-300 text-slate-700 text-xs font-bold rounded-xl transition-all shrink-0 flex items-center gap-1.5"
+                      >
+                        🖼️ Thư viện ảnh
+                      </button>
+                    </div>
 
-          <div className="wide actions">
-            <button className="btn" disabled={busy}>
-              {busy ? "Đang lưu..." : "Lưu"}
+                    {form.image_url && (
+                      <div className="relative w-36 h-24 rounded-xl overflow-hidden border border-slate-200 bg-slate-50 shadow-xs">
+                        <img
+                          src={String(form.image_url)}
+                          alt={String(form.image_alt || "Ảnh đại diện")}
+                          className="w-full h-full object-cover"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => {
+                            change("image_url", "");
+                            change("image_alt", "");
+                          }}
+                          className="absolute top-1 right-1 bg-red-600/80 hover:bg-red-600 text-white w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold"
+                          title="Xóa ảnh"
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                ) : f.type === "checkbox" ? (
+                  <div className="flex items-center gap-2 pt-1">
+                    <input
+                      type="checkbox"
+                      id={`chk-${f.key}`}
+                      checked={Boolean(form[f.key])}
+                      onChange={(e) => change(f.key, e.target.checked)}
+                      className="w-4 h-4 text-red-600 border-slate-300 rounded focus:ring-red-500 accent-red-600 cursor-pointer"
+                    />
+                    <label htmlFor={`chk-${f.key}`} className="text-xs text-slate-600 font-medium cursor-pointer">
+                      Kích hoạt / Đánh dấu lựa chọn này
+                    </label>
+                  </div>
+                ) : f.type === "textarea" ? (
+                  <textarea
+                    rows={3}
+                    value={String(form[f.key] ?? "")}
+                    onChange={(e) => change(f.key, e.target.value)}
+                    className="w-full px-3.5 py-2.5 text-sm bg-slate-50 border border-slate-300 rounded-xl text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-red-500 focus:bg-white transition-all"
+                  />
+                ) : f.type === "select" ? (
+                  <select
+                    required={f.required}
+                    value={String(form[f.key] || "draft")}
+                    onChange={(e) => change(f.key, e.target.value)}
+                    className="w-full px-3.5 py-2.5 text-sm bg-slate-50 border border-slate-300 rounded-xl text-slate-800 focus:outline-none focus:ring-2 focus:ring-red-500 focus:bg-white transition-all cursor-pointer"
+                  >
+                    <option value="draft">Bản nháp</option>
+                    <option value="published">Xuất bản</option>
+                  </select>
+                ) : (
+                  <input
+                    type={f.type === "number" ? "number" : "text"}
+                    required={f.required}
+                    value={
+                      form[f.key] === null
+                        ? ""
+                        : String(form[f.key] ?? "")
+                    }
+                    onChange={(e) => change(f.key, e.target.value)}
+                    className="w-full px-3.5 py-2.5 text-sm bg-slate-50 border border-slate-300 rounded-xl text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-red-500 focus:bg-white transition-all"
+                  />
+                )}
+              </div>
+            ))}
+          </div>
+
+          {/* Nút hành động Form */}
+          <div className="pt-4 border-t border-slate-100 flex items-center gap-3">
+            <button
+              type="submit"
+              disabled={busy}
+              className="px-6 py-2.5 bg-red-600 hover:bg-red-700 active:bg-red-800 text-white font-bold text-xs rounded-xl shadow-md transition-all flex items-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
+            >
+              {busy ? "Đang lưu..." : editing ? "Cập Nhật" : "Lưu Mới"}
             </button>
 
             <button
               type="button"
-              className="btn btnsecondary"
               onClick={() => {
                 setForm(empty(kind));
                 setEditing(null);
                 setError("");
                 setNotice("");
               }}
+              className="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl transition-all border border-slate-200"
             >
-              Làm mới
+              Làm mới form
             </button>
           </div>
         </form>
       </section>
 
-      <section className="admincard">
-        <h2>Danh sách ({rows.length})</h2>
+      {/* DANH SÁCH BẢNG DỮ LIỆU */}
+      <section className="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
+        <div className="px-6 py-4 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
+          <h2 className="text-sm font-bold text-slate-800">
+            Danh sách {cfg.title.toLowerCase()} ({rows.length})
+          </h2>
+        </div>
 
-        <div className="tablewrap">
-          <table>
+        <div className="overflow-x-auto">
+          <table className="w-full text-left border-collapse">
             <thead>
-              <tr>
-                <th>ID</th>
-                <th>Tên / tiêu đề</th>
-                <th>Slug</th>
-                <th>Trạng thái / giá</th>
-                <th>Thao tác</th>
+              <tr className="bg-slate-100/70 border-b border-slate-200 text-[11px] font-extrabold uppercase tracking-wider text-slate-500">
+                <th className="py-3 px-4 w-16">ID</th>
+                <th className="py-3 px-4">Tên / Tiêu đề</th>
+                <th className="py-3 px-4">Slug</th>
+                <th className="py-3 px-4">Trạng thái / Giá</th>
+                <th className="py-3 px-4 text-right w-36">Thao tác</th>
               </tr>
             </thead>
 
-            <tbody>
-              {rows.map((row) => (
-                <tr key={row.id}>
-                  <td>{row.id}</td>
-                  <td>{row.name || row.title}</td>
-                  <td>{row.slug}</td>
-
-                  <td>
-                    {kind === "products"
-                      ? new Intl.NumberFormat("vi-VN").format(
-                          Number(row.price || 0)
-                        ) +
-                        "₫ · " +
-                        (row.is_published ? "Hiện" : "Ẩn")
-                      : kind === "posts"
-                        ? row.status
-                        : row.parent_id || "Danh mục gốc"}
-                  </td>
-
-                  <td>
-                    <div className="actions">
-                      <button
-                        type="button"
-                        className="btn btnsecondary"
-                        onClick={() => startEdit(row)}
-                      >
-                        Sửa
-                      </button>
-
-                      <button
-                        type="button"
-                        className="btn danger"
-                        onClick={() => remove(Number(row.id))}
-                      >
-                        Xóa
-                      </button>
-                    </div>
+            <tbody className="divide-y divide-slate-100 text-xs">
+              {rows.length === 0 ? (
+                <tr>
+                  <td colSpan={5} className="py-8 text-center text-slate-400 font-medium">
+                    Chưa có dữ liệu nào trong bảng này.
                   </td>
                 </tr>
-              ))}
+              ) : (
+                rows.map((row) => (
+                  <tr key={row.id} className="hover:bg-slate-50/80 transition-colors">
+                    <td className="py-3 px-4 font-bold text-slate-400">#{row.id}</td>
+                    <td className="py-3 px-4 font-bold text-slate-900 max-w-xs truncate">
+                      {row.name || row.title}
+                    </td>
+                    <td className="py-3 px-4 text-slate-500 max-w-xs truncate font-mono text-[11px]">
+                      {row.slug}
+                    </td>
+
+                    <td className="py-3 px-4 font-semibold">
+                      {kind === "products" ? (
+                        <span className="text-red-600 font-bold">
+                          {new Intl.NumberFormat("vi-VN").format(Number(row.price || 0))}₫
+                          <span className="text-slate-400 font-normal text-[11px] ml-1">
+                            ({row.is_published ? "Hiện" : "Ẩn"})
+                          </span>
+                        </span>
+                      ) : kind === "posts" ? (
+                        <span
+                          className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                            row.status === "published"
+                              ? "bg-emerald-100 text-emerald-700"
+                              : "bg-amber-100 text-amber-700"
+                          }`}
+                        >
+                          {row.status === "published" ? "Xuất bản" : "Bản nháp"}
+                        </span>
+                      ) : (
+                        <span className="text-slate-500">
+                          {row.parent_id ? `ID cha: ${row.parent_id}` : "Danh mục gốc"}
+                        </span>
+                      )}
+                    </td>
+
+                    <td className="py-3 px-4 text-right">
+                      <div className="flex items-center justify-end gap-1.5">
+                        <button
+                          type="button"
+                          onClick={() => startEdit(row)}
+                          className="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-[11px] rounded-lg transition-colors border border-slate-200"
+                        >
+                          Sửa
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => remove(Number(row.id))}
+                          className="px-2.5 py-1 bg-red-50 hover:bg-red-600 text-red-600 hover:text-white font-bold text-[11px] rounded-lg transition-colors border border-red-200"
+                        >
+                          Xóa
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
@@ -479,6 +555,6 @@ export default function CrudPanel({
           onClose={closeMedia}
         />
       )}
-    </>
+    </div>
   );
 }
