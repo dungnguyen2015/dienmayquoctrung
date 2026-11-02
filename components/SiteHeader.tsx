@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 const phone = process.env.NEXT_PUBLIC_PHONE || "0932383966";
+const displayPhone = process.env.NEXT_PUBLIC_PHONE || "0932 383 966";
 
 const productCategories = [
   {
@@ -48,94 +49,136 @@ const productCategories = [
 
 export default function SiteHeader() {
   return (
-    <>
-      <div className="qt-topbar">
-        <div className="qt-container qt-topbar__inner">
-          <p>Điện Máy Quốc Trung – Thiết bị điện máy cũ đã qua kiểm tra</p>
-          <div className="qt-topbar__links">
-            <Link href="/gioi-thieu">Giới thiệu</Link>
-            <span aria-hidden="true">|</span>
-            <Link href="/bai-viet">Tin tức</Link>
-            <span aria-hidden="true">|</span>
-            <Link href="/lien-he">Liên hệ</Link>
+    <header className="w-full bg-white font-sans text-slate-800 shadow-xs">
+      {/* Topbar */}
+      <div className="bg-red-950 text-slate-200 text-xs py-1.5 px-4">
+        <div className="max-w-7xl mx-auto flex justify-between items-center">
+          <p className="truncate">Điện Máy Quốc Trung – Thiết bị điện máy cũ đã qua kiểm tra</p>
+          <div className="hidden sm:flex items-center space-x-3 text-slate-300">
+            <Link href="/gioi-thieu" className="hover:text-white transition-colors">Giới thiệu</Link>
+            <span className="opacity-40">|</span>
+            <Link href="/bai-viet" className="hover:text-white transition-colors">Tin tức</Link>
+            <span className="opacity-40">|</span>
+            <Link href="/lien-he" className="hover:text-white transition-colors">Liên hệ</Link>
           </div>
         </div>
       </div>
 
-      <header className="qt-header">
-        <div className="qt-container qt-header__main">
-          <Link className="qt-logo" href="/" aria-label="Điện Máy Quốc Trung - Trang chủ">
-            <span className="qt-logo__mark" aria-hidden="true">QT</span>
-            <span className="qt-logo__text">
-              <strong>ĐIỆN MÁY</strong>
-              <span>QUỐC TRUNG</span>
+      {/* Main Header */}
+      <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
+        {/* Logo */}
+        <Link href="/" aria-label="Điện Máy Quốc Trung - Trang chủ" className="flex items-center gap-2 group shrink-0">
+          <span className="w-10 h-10 bg-red-600 text-white font-black rounded-lg flex items-center justify-center text-xl shadow-md group-hover:bg-red-700 transition-colors">
+            QT
+          </span>
+          <span className="flex flex-col">
+            <strong className="text-red-600 font-extrabold text-lg leading-none tracking-tight group-hover:text-red-700">
+              ĐIỆN MÁY
+            </strong>
+            <span className="text-slate-700 text-xs font-semibold tracking-wider">
+              QUỐC TRUNG
             </span>
-          </Link>
+          </span>
+        </Link>
 
-          <form className="qt-search" action="/san-pham" role="search">
-            <label className="qt-sr-only" htmlFor="qt-product-search">Tìm kiếm sản phẩm</label>
+        {/* Search Bar */}
+        <form action="/san-pham" role="search" className="flex-1 max-w-xl mx-2">
+          <div className="relative flex items-center">
             <input
               id="qt-product-search"
               type="search"
               name="q"
               placeholder="Bạn muốn tìm tủ lạnh, máy giặt, máy lạnh..."
+              className="w-full pl-4 pr-24 py-2 border-2 border-red-600 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-400 bg-slate-50 focus:bg-white transition-all"
             />
-            <button type="submit">Tìm kiếm</button>
-          </form>
+            <button
+              type="submit"
+              className="absolute right-1 top-1 bottom-1 px-4 bg-red-600 hover:bg-red-700 text-white font-medium text-sm rounded-md transition-colors flex items-center justify-center"
+            >
+              Tìm kiếm
+            </button>
+          </div>
+        </form>
 
-          <a className="qt-hotline" href={`tel:${phone}`}>
-            <span className="qt-hotline__icon" aria-hidden="true">☎</span>
-            <span>
-              <small>Tư vấn mua hàng</small>
-              <strong>{process.env.NEXT_PUBLIC_PHONE || "0932 383 966"}</strong>
-            </span>
-          </a>
-        </div>
-      </header>
+        {/* Hotline */}
+        <a
+          href={`tel:${phone}`}
+          className="hidden md:flex items-center gap-2 px-3 py-1.5 border border-red-200 bg-red-50 hover:bg-red-100 rounded-lg transition-colors text-red-600 shrink-0"
+        >
+          <span className="text-xl">☎</span>
+          <span className="flex flex-col text-left">
+            <small className="text-[10px] text-slate-500 uppercase font-semibold">Tư vấn mua hàng</small>
+            <strong className="text-sm font-bold text-red-700 leading-tight">{displayPhone}</strong>
+          </span>
+        </a>
+      </div>
 
-      <nav className="qt-nav" aria-label="Điều hướng chính">
-        <div className="qt-container qt-nav__inner">
-          <Link className="qt-nav__home" href="/">Trang chủ</Link>
+      {/* Navigation Bar */}
+      <nav className="bg-red-600 text-white shadow-md" aria-label="Điều hướng chính">
+        <div className="max-w-7xl mx-auto px-4 flex items-center font-medium text-sm">
+          <Link href="/" className="py-3 px-4 hover:bg-red-700 font-semibold transition-colors">
+            Trang chủ
+          </Link>
 
-          <div className="qt-menu">
-            <Link className="qt-menu__trigger" href="/san-pham" aria-haspopup="true">
-              Sản phẩm <span className="qt-chevron" aria-hidden="true">▾</span>
+          {/* Menu Danh Mục Sản Phẩm (Menu Cha) */}
+          <div className="relative group/parent">
+            <Link
+              href="/san-pham"
+              className="py-3 px-4 flex items-center gap-1 hover:bg-red-700 font-semibold transition-colors"
+              aria-haspopup="true"
+            >
+              Danh mục sản phẩm
+              <span className="text-xs transition-transform group-hover/parent:rotate-180">▾</span>
             </Link>
-            <div className="qt-dropdown qt-dropdown--products">
-              <div className="qt-dropdown__intro">
-                <strong>Danh mục sản phẩm</strong>
-                <span>Chọn nhóm sản phẩm bạn đang tìm</span>
-                <Link href="/san-pham">Xem tất cả sản phẩm →</Link>
-              </div>
-              <div className="qt-category-list">
-                {productCategories.map((category) => (
-                  <div className="qt-category" key={category.href}>
-                    <Link className="qt-category__trigger" href={category.href} aria-haspopup="true">
-                      <span>{category.label}</span>
-                      <span className="qt-chevron qt-chevron--right" aria-hidden="true">›</span>
-                    </Link>
-                    <div className="qt-submenu">
-                      <Link className="qt-submenu__title" href={category.href}>
+
+            {/* Dropdown Menu Cấp 1 (Danh Mục Con) */}
+            <div className="absolute top-full left-0 w-56 bg-white text-slate-800 shadow-xl border border-slate-100 opacity-0 invisible group-hover/parent:opacity-100 group-hover/parent:invisible-none transition-all duration-150 z-50 rounded-b-md">
+              {productCategories.map((category) => (
+                <div key={category.href} className="relative group/child border-b border-slate-100 last:border-0">
+                  <Link
+                    href={category.href}
+                    className="flex items-center justify-between px-4 py-2.5 text-sm font-medium hover:bg-red-50 hover:text-red-600 transition-colors"
+                  >
+                    <span>{category.label}</span>
+                    <span className="text-xs text-slate-400 group-hover/child:text-red-600">›</span>
+                  </Link>
+
+                  {/* Dropdown Menu Cấp 2 (Danh Mục Cháu) */}
+                  <div className="absolute top-0 left-full w-56 bg-white text-slate-800 shadow-xl border border-slate-100 opacity-0 invisible group-hover/child:opacity-100 group-hover/child:invisible-none transition-all duration-150 rounded-r-md">
+                    <div className="p-2 border-b border-slate-100 bg-red-50/50">
+                      <Link
+                        href={category.href}
+                        className="text-xs font-semibold text-red-600 hover:underline"
+                      >
                         Xem tất cả {category.label.toLowerCase()} →
                       </Link>
-                      {category.children.map((item) => (
-                        <Link key={item.href} href={item.href}>{item.label}</Link>
-                      ))}
                     </div>
+                    {category.children.map((item) => (
+                      <Link
+                        key={item.href}
+                        href={item.href}
+                        className="block px-4 py-2 text-xs font-normal text-slate-600 hover:bg-red-50 hover:text-red-600 transition-colors"
+                      >
+                        {item.label}
+                      </Link>
+                    ))}
                   </div>
-                ))}
-              </div>
+                </div>
+              ))}
             </div>
           </div>
 
-          <Link href="/tu-lanh">Tủ lạnh</Link>
-          <Link href="/may-giat">Máy giặt</Link>
-          <Link href="/may-lanh">Máy lạnh</Link>
-          <Link href="/dien-gia-dung">Điện gia dụng</Link>
-          <Link href="/bai-viet">Tin tức</Link>
-          <Link href="/lien-he">Liên hệ</Link>
+          {/* Quick Category Links */}
+          <div className="hidden lg:flex items-center">
+            <Link href="/tu-lanh" className="py-3 px-4 hover:bg-red-700 transition-colors">Tủ lạnh</Link>
+            <Link href="/may-giat" className="py-3 px-4 hover:bg-red-700 transition-colors">Máy giặt</Link>
+            <Link href="/may-lanh" className="py-3 px-4 hover:bg-red-700 transition-colors">Máy lạnh</Link>
+            <Link href="/dien-gia-dung" className="py-3 px-4 hover:bg-red-700 transition-colors">Điện gia dụng</Link>
+            <Link href="/bai-viet" className="py-3 px-4 hover:bg-red-700 transition-colors">Tin tức</Link>
+            <Link href="/lien-he" className="py-3 px-4 hover:bg-red-700 transition-colors">Liên hệ</Link>
+          </div>
         </div>
       </nav>
-    </>
+    </header>
   );
 }
