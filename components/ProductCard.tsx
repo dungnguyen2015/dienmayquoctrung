@@ -11,7 +11,8 @@ export type Product = {
   short_description?: string | null;
 };
 
-const money = (v: number | string) =>
+// Cho phép v nhận thêm null hoặc undefined
+const money = (v?: number | string | null) =>
   new Intl.NumberFormat("vi-VN").format(Number(v || 0)) + "₫";
 
 export default function ProductCard({ p }: { p: Product }) {
