@@ -95,7 +95,7 @@ export default async function PostsPage({ searchParams }: PageProps) {
                     className="bg-white rounded-xl overflow-hidden shadow-xs border border-slate-200 hover:shadow-md transition-all flex flex-col justify-between group"
                   >
                     <div>
-                      <Link href={`/bai-viet/${p.slug}`} className="block aspect-video w-full bg-slate-100 overflow-hidden relative">
+                      <Link href={`/${p.slug}`} className="block aspect-video w-full bg-slate-100 overflow-hidden relative">
                         {p.image_url ? (
                           <img
                             src={p.image_url}
@@ -117,7 +117,7 @@ export default async function PostsPage({ searchParams }: PageProps) {
                           </span>
                         )}
                         <h2 className="font-bold text-slate-900 text-sm line-clamp-2 group-hover:text-red-600 transition-colors">
-                          <Link href={`/bai-viet/${p.slug}`}>{p.title}</Link>
+                          <Link href={`/${p.slug}`}>{p.title}</Link>
                         </h2>
                         <p className="text-xs text-slate-600 line-clamp-3 leading-relaxed">
                           {p.excerpt || "Đọc ngay bài viết chi tiết để có thêm kinh nghiệm hữu ích..."}
@@ -127,7 +127,7 @@ export default async function PostsPage({ searchParams }: PageProps) {
 
                     <div className="p-4 pt-0">
                       <Link
-                        href={`/bai-viet/${p.slug}`}
+                        href={`/${p.slug}`}
                         className="text-xs font-bold text-red-600 hover:text-red-700 inline-flex items-center gap-1 group/link"
                       >
                         Đọc tiếp <span className="group-hover/link:translate-x-1 transition-transform">→</span>
